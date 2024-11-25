@@ -1,15 +1,17 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const usermodel = require("../models/usermodel");
 const authenticateToken = require("../middlewares/jwtguard");
 const Session = require("../models/sessionsmodel");
 const sessionRouter = express.Router();
-
 const mongoose = require("mongoose");
 const { createZoomMeeting } = require("../utils/zoom.utils");
 const { captureOrder } = require("../utils/paypal.utils");
+const HOSTMAIL = process.env.ZOOM_HOST;
 
 sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
-  const { counselorId, sessionTime, sessionType,orderId,price } = req.body;
+  const { counselorId, sessionTime, sessionType, orderId, price } = req.body;
   const clientId = req.user.id;
 
   if (!mongoose.isValidObjectId(counselorId)) {
@@ -20,8 +22,7 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
     return res.status(400).json({ message: "Invalid client ID format." });
   }
 
-    try {
-
+  try {
     const formattedSessionTime = new Date(sessionTime);
     if (isNaN(formattedSessionTime.getTime())) {
       return res.status(400).json({ message: "Invalid sessionTime format." });
@@ -74,7 +75,7 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
     }
 
     const zoomMeeting = await createZoomMeeting(
-      counselor.email,
+      HOSTMAIL,
       `Counseling session:${client.name}&${counselor.name}`,
       formattedSessionTime.toISOString(),
       60
@@ -88,7 +89,7 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
       sessionType,
       meetingLink: zoomMeeting.join_url,
       meetingId: zoomMeeting.id,
-      expiresAt:sessionTime
+      expiresAt: sessionTime,
     });
 
     await session.save();
@@ -138,9 +139,11 @@ sessionRouter.get("/bookings/:userId", authenticateToken, async (req, res) => {
     // Remove expired sessions
     await Session.deleteMany({ sessionTime: { $lt: now } });
 
-
     if (role === "client") {
-      bookings = await Session.find({ client: userId, sessionTime: { $gte: now } })
+      bookings = await Session.find({
+        client: userId,
+        sessionTime: { $gte: now },
+      })
         .populate("client", "name email")
         .populate("counselor", "name email")
         .sort({ sessionTime: 1 });
@@ -148,7 +151,7 @@ sessionRouter.get("/bookings/:userId", authenticateToken, async (req, res) => {
       bookings = await Session.find({ counselor: userId })
         .populate("counselor", "name email")
         .populate("client", "name email")
-        .sort({ sessionTime: 1 });;
+        .sort({ sessionTime: 1 });
     } else {
       return res
         .status(403)
