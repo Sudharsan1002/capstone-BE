@@ -5,6 +5,8 @@ const Session = require("../models/sessionsmodel")
 const userRouter = express.Router()
 
 
+//METHOD:GET
+//ROUTE TO GET  ALL COUNSELOR FROM USERMODEL
 
 userRouter.get("/counselors", authenticateToken, async (req, res) => {
     try {
@@ -17,6 +19,8 @@ userRouter.get("/counselors", authenticateToken, async (req, res) => {
     
 })
 
+
+//METHOD:GET
 // Fetch clients who booked sessions with a particular counselor
 userRouter.get('/clients/:counselorId', authenticateToken, async (req, res) => {
   const { counselorId } = req.params;

@@ -10,6 +10,10 @@ const { createZoomMeeting } = require("../utils/zoom.utils");
 const { captureOrder } = require("../utils/paypal.utils");
 const HOSTMAIL = process.env.ZOOM_HOST;
 
+
+
+//METHOD:POST
+//ROUTE TO  BOOK SESSION BASED ON CONSELOR'S AVAILABILITY AND PROVIDE ZOOM MEETING LINK TO JOIN SESSION
 sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
   const { counselorId, sessionTime, sessionType, orderId, price } = req.body;
   const clientId = req.user.id;
@@ -21,7 +25,10 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
   if (!mongoose.isValidObjectId(clientId)) {
     return res.status(400).json({ message: "Invalid client ID format." });
   }
-
+  
+    
+    
+    //FORMATTING TIME FOR SOLVE ZONE DIFFERCES OF TIME 
   try {
     const formattedSessionTime = new Date(sessionTime);
     if (isNaN(formattedSessionTime.getTime())) {
@@ -46,6 +53,9 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
       return res.status(404).json({ message: "Client not found." });
     }
 
+      
+     //CHECKING FOR COUNSELOR'S AVAILABILITY 
+      
     const counselorAvailability = counselor.availability.find(
       (availability) =>
         availability.date.toISOString().split("T")[0] === dateStr
@@ -59,6 +69,9 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
 
     console.log("Counselor's available times:", counselorAvailability.times);
 
+      
+      
+    //CHECKING AVAILBLE TIMES FOR COUNSELOR  
     const selectedTimeRange = counselorAvailability.times.find((timeRange) => {
       const [startTime, endTime] = timeRange.split("-");
       const start = startTime.trim();
@@ -72,8 +85,9 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
       return res
         .status(400)
         .json({ message: "Selected time slot is not available." });
-    }
-
+      }
+      
+    //FUNCTION TO CREATE ZOOM MEETING 
     const zoomMeeting = await createZoomMeeting(
       HOSTMAIL,
       `Counseling session:${client.name}&${counselor.name}`,
@@ -126,7 +140,10 @@ sessionRouter.post("/booksessions", authenticateToken, async (req, res) => {
   }
 });
 
-//GET BOOKINGS OF SPECIFIC USER
+
+
+//METHOD :GET
+//GET BOOKINGS OF SPECIFIC USER WITH VALID TIME 
 
 sessionRouter.get("/bookings/:userId", authenticateToken, async (req, res) => {
   try {

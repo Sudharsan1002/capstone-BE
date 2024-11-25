@@ -3,6 +3,11 @@ const authenticateToken = require("../middlewares/jwtguard");
 const usermodel = require("../models/usermodel");
 const availrouter = express.Router();
 
+
+
+//METHOD:POST
+//ROUTE TO PROVIDE FEATURE TO ADD AVAILABILITY FOR COUNSELOR
+
 availrouter.post("/", authenticateToken, async (req, res) => {
   const availability = req.body;
 
@@ -131,6 +136,12 @@ availrouter.post("/", authenticateToken, async (req, res) => {
     });
   }
 });
+
+
+
+
+//METHOD:GET
+//ROUTE TO FETCH AVAILABILITIES FOR SELECTED COUNSELOR
 
 availrouter.get("/:counselorId", authenticateToken, async (req, res) => {
   const { counselorId } = req.params;

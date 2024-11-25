@@ -4,6 +4,11 @@ const Note = require("../models/notesmodel");
 const authenticateToken = require("../middlewares/jwtguard");
 notesRouter = express.Router();
 
+
+
+//METHOD:POST
+//ROUTE FOR COUNSELOR TO ADD NOTES FOR THE PARTICULAR SESSION
+
 notesRouter.post("/add/:sessionId", authenticateToken, async (req, res) => {
   const { sessionId } = req.params;
   const { notes } = req.body;
@@ -43,6 +48,11 @@ notesRouter.post("/add/:sessionId", authenticateToken, async (req, res) => {
   }
 });
 
+
+
+//METHOD:GET
+//ROUTE FOR CLIENT TO VIEW NOTES ADDED BY COUNSELOR FOR A PARTICULAR SESSION
+
 notesRouter.get("/:sessionId", authenticateToken, async (req, res) => {
   const { sessionId } = req.params;
 
@@ -70,6 +80,8 @@ notesRouter.get("/:sessionId", authenticateToken, async (req, res) => {
 
 
 
+//METHOD:GET
+//ROUTE FOR CLIENT TO VIEW ALL NOTES ADDED BY COUNSELOR FOR ALL SESSIONS
 
 notesRouter.get("/client/:userId", authenticateToken, async (req, res) => {
   try {

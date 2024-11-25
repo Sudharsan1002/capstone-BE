@@ -7,6 +7,10 @@ const ZOOM_CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
 const ZOOM_ACCOUNT_ID = process.env.ZOOM_ACCOUNT_ID;
 const ZOOM_API_BASE_URL = process.env.ZOOM_API_BASE_URL;
 
+
+
+//FUNCTION TO GET ZOOM ACCESSTOKEN
+
 async function getZoomAccessToken(params) {
   const tokenUrl = `https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${ZOOM_ACCOUNT_ID}`;
 
@@ -29,6 +33,11 @@ async function getZoomAccessToken(params) {
     throw new Error("Failed to generate Zoom access token.");
   }
 }
+
+
+
+
+//FUNCTION TO CREATE ZOOM MEETING
 
 async function createZoomMeeting(hostMail, topic, startTime, duration) {
   const accesstoken = await getZoomAccessToken();
