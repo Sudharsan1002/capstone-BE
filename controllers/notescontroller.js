@@ -99,9 +99,7 @@ notesRouter.get("/client/:userId", authenticateToken, async (req, res) => {
       .populate("counselorId", "name email"); // Populate counselor details
     console.log(notes);
     if (!notes.length) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No notes found for this client" });
+      return res.status(200).json({ success: true, data: [],message:'No notes found' });
     }
 
     res.status(200).json({ success: true, data: notes });
